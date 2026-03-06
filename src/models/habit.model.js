@@ -5,7 +5,6 @@ const habitSchema = new Schema(
     title: {
       type: String,
       required: [true, "Title is required"],
-      unique: true,
       trim: true,
     },
     description: {
@@ -17,9 +16,15 @@ const habitSchema = new Schema(
       type: Number,
       default: 0,
     },
+    status: {
+      type: String,
+      enum: ["active", "paused", "archived"],
+      default: "active",
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   {

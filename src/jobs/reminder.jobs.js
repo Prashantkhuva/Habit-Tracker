@@ -5,9 +5,10 @@ import User from "../models/user.model.js";
 
 export const startReminderJob = () => {
   // runs every day at 9 PM
-  cron.schedule("0 21 * * *", async () => {
+  cron.schedule("0 22 * * *", async () => {
     console.log("Running daily habit reminder job...");
 
+    // Getting today's date
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
