@@ -102,4 +102,75 @@ const updateHabitDetails = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, habit, "habit details updated successfully"));
 });
 
-export { createHabit, getUserHabit, deleteHabit, updateHabitDetails };
+const pauseHabit = asyncHandler(async (req, res) => {
+  const { habitId } = req.params;
+
+  const habit = await Habit.findByIdAndUpdate(
+    {
+      _id: habitId,
+      user: req.user._id,
+    },
+    {
+      status: "paused",
+    },
+    {
+      new: true,
+    },
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, habit, "Habit paused successfully"));
+});
+
+const resumeHabit = asyncHandler(async (req, res) => {
+  const { habitId } = req.params;
+
+  const habit = await Habit.findByIdAndUpdate(
+    {
+      _id: habitId,
+      user: req.user._id,
+    },
+    {
+      status: "active",
+    },
+    {
+      new: true,
+    },
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, habit, "Habit resumed successfully"));
+});
+
+const archiveHabit = asyncHandler(async (req, res) => {
+  const { habitId } = req.params;
+
+  const habit = await Habit.findByIdAndUpdate(
+    {
+      _id: habitId,
+      user: req.user._id,
+    },
+    {
+      status: "archived",
+    },
+    {
+      new: true,
+    },
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, habit, "Habit archived  successfully"));
+});
+
+export {
+  createHabit,
+  getUserHabit,
+  deleteHabit,
+  updateHabitDetails,
+  pauseHabit,
+  resumeHabit,
+  archiveHabit,
+};
