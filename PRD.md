@@ -1,218 +1,345 @@
-📄 PRODUCT REQUIREMENTS DOCUMENT
-Project: Habit Tracker API (Backend Only)
+# Habit Tracker – Product Requirements Document (PRD)
 
-Version: 1.0
-Owner: Prashant
-Goal: Build first fully self-made backend project
+## 1. Overview
 
-1️⃣ PROJECT OBJECTIVE
+Habit Tracker is a full-stack web application that helps users build and maintain daily habits.
+Users can create habits, mark them as completed, track streaks, and analyze their progress using dashboard analytics.
 
-Build a REST API that allows users to:
+The goal of the project is to simulate a real SaaS-style habit tracking platform with authentication, analytics, and habit management features.
 
-Register & login
+---
 
-Create habits
+## 2. Objectives
 
-Track daily completion
+* Help users track daily habits consistently
+* Provide progress insights through analytics
+* Encourage long-term consistency using streak tracking
+* Build a production-style backend system for learning full-stack development
 
-View progress
+---
 
-Delete habits
+## 3. Target Users
 
-This project must:
+* Students building productivity habits
+* Developers learning consistency
+* Individuals tracking daily routines
+* Anyone wanting to improve daily discipline
 
-Use Node + Express
+---
 
-Use MongoDB
+## 4. Core Features
 
-Follow clean folder structure
+### 4.1 Authentication System
 
-Be deployable later
+Users must be able to securely access their accounts.
 
-2️⃣ DEVELOPMENT PHASES
+Features:
 
-We build in controlled phases.
+* User registration
+* User login
+* JWT authentication
+* Secure protected routes
 
-🔹 PHASE 1 – Infrastructure (Current Phase)
-Objective:
+---
 
-Setup server + DB connection properly.
+### 4.2 Habit Management
 
-Requirements:
+Users can manage their personal habits.
 
-Express server running
+Features:
 
-MongoDB connected via mongoose
+* Create a habit
+* Update a habit
+* Delete a habit
+* View all habits
+* Pagination support
 
-Environment variables configured
+Habit example:
 
-Proper error handling on DB failure
+```
+Workout
+Read 10 pages
+Meditation
+```
 
-Server should NOT start if DB fails
+---
 
-Deliverable:
+### 4.3 Habit Status
 
-Server runs only after successful DB connection
+Each habit can have a status.
 
-Clean console logs
+Status values:
 
-No hardcoded secrets
+```
+active
+paused
+archived
+```
 
-🔹 PHASE 2 – User Module
-Objective:
+Purpose:
 
-Create user system foundation.
+* Active habits appear in dashboard
+* Paused habits temporarily stop tracking
+* Archived habits are stored but hidden
 
-Requirements:
+---
 
-User Model:
+### 4.4 Habit Categories
 
-name (string, required)
+Habits can be grouped into categories.
 
-email (string, required, unique)
+Examples:
 
-password (string, required)
+```
+Health
+Fitness
+Learning
+Productivity
+Mindfulness
+```
 
-createdAt
+Example:
 
-Routes:
+```
+Workout → Fitness
+Reading → Learning
+Meditation → Health
+```
 
-POST /api/users/register
+---
 
-POST /api/users/login
+### 4.5 Habit Completion Logs
 
-Business Logic:
+Users mark habits as completed each day.
 
-Hash password before saving
+Example log:
 
-Compare password on login
+```
+User: 123
+Habit: Workout
+Date: 2026-03-06
+Completed: true
+```
 
-Return JWT token on successful login
+These logs power the analytics features.
 
-Deliverable:
+---
 
-User can register
+### 4.6 Streak System
 
-User can login
+The system calculates streaks based on habit completion.
 
-Token generated
+Types:
 
-🔹 PHASE 3 – Habit Module
-Objective:
+**Current Streak**
+Number of consecutive days the habit is currently maintained.
 
-Allow authenticated users to manage habits.
+**Longest Streak**
+The highest streak the user has ever achieved.
 
-Habit Model:
+Example:
 
-userId (reference)
+```
+Mon Tue Wed Thu
+Current streak = 4
+Longest streak = 7
+```
 
-title (string, required)
+---
 
-description (optional)
+### 4.7 Dashboard Analytics
 
-frequency (daily / weekly)
+The dashboard provides user insights.
 
-createdAt
+Features:
 
-Routes:
+* Total habits
+* Total completions
+* Current streak
+* Longest streak
+* Weekly completion statistics
 
+---
+
+### 4.8 Weekly Completion Chart
+
+Displays the number of habits completed each day of the week.
+
+Example data:
+
+```
+Mon → 3
+Tue → 2
+Wed → 4
+Thu → 1
+Fri → 0
+Sat → 2
+Sun → 3
+```
+
+Implementation uses MongoDB aggregation pipeline:
+
+* `$match`
+* `$group`
+
+---
+
+## 5. Backend Architecture
+
+Backend built using:
+
+* Node.js
+* Express.js
+* MongoDB
+* Mongoose
+
+Main modules:
+
+```
+Auth Controller
+Habit Controller
+Habit Log Controller
+Dashboard Controller
+```
+
+---
+
+## 6. API Endpoints
+
+### Authentication
+
+```
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+```
+
+---
+
+### Habits
+
+```
 POST /api/habits
-
 GET /api/habits
-
+PATCH /api/habits/:id
 DELETE /api/habits/:id
+```
 
-All routes must:
+---
 
-Be protected (JWT middleware)
+### Habit Logs
 
-Deliverable:
+```
+POST /api/habit-log
+GET /api/habit-log/:habitId
+```
 
-Logged-in user can create habits
+---
 
-Only see their own habits
+### Dashboard
 
-Delete habits
+```
+GET /api/dashboard/stats
+GET /api/dashboard/weekly-chart
+GET /api/dashboard/streak
+```
 
-🔹 PHASE 4 – Habit Tracking Logic
-Objective:
+---
 
-Track daily completion.
+## 7. Database Design
 
-Design Decision Required:
-Will you:
-A) Store completed dates in array?
-B) Create separate HabitLog collection?
+### User
 
-Choose scalable option.
+```
+name
+email
+password
+```
 
-Routes:
+### Habit
 
-PATCH /api/habits/:id/complete
+```
+title
+category
+status
+userId
+createdAt
+```
 
-GET /api/habits/:id/progress
+### HabitLog
 
-Deliverable:
+```
+habitId
+userId
+date
+completed
+```
 
-Mark habit completed
+Indexes:
 
-View completion history
+```
+userId
+habitId
+date
+```
 
-🔹 PHASE 5 – Production Readiness
+---
 
-Requirements:
+## 8. Deployment Plan
 
-Central error handler middleware
+Backend deployment:
 
-Proper HTTP status codes
+* Node.js API hosted on Render or Railway
+* MongoDB Atlas for database
 
-Clean response format
+Example API URL:
 
-Remove console.logs
+```
+https://habit-tracker-api.onrender.com
+```
 
-Prepare for deployment
+---
 
-3️⃣ NON-FUNCTIONAL REQUIREMENTS
+## 9. Frontend (Future Phase)
 
-Code must be modular
+Frontend built using React.
 
-No copy-paste full tutorials
+Pages:
 
-Use async/await
-
-Proper try/catch
-
-Use meaningful variable names
-
-4️⃣ SUCCESS CRITERIA
-
-Project is complete when:
-
-A new user can register
-
+```
 Login
+Register
+Dashboard
+Habits List
+Habit Progress
+Analytics
+```
 
-Create habits
+Charts:
 
-Mark them complete
+* Weekly completion chart
+* Streak visualization
 
-See history
+---
 
-All via Postman
+## 10. Future Improvements
 
-No frontend required.
+Potential upgrades:
 
-5️⃣ CURRENT TASK (RIGHT NOW)
+* Reminder notifications
+* Mobile app
+* Habit sharing
+* Social accountability
+* Monthly heatmap like GitHub contributions
 
-You are in:
-PHASE 1 – Infrastructure
+---
 
-Next actions:
+## 11. Project Goal
 
-Install mongoose + dotenv
+The purpose of this project is to build a **production-style full-stack application** demonstrating:
 
-Create DB connection module
-
-Connect DB before server start
-
-Handle connection failure properly
+* Authentication systems
+* REST API design
+* MongoDB aggregation
+* Data analytics features
+* Scalable backend architecture
