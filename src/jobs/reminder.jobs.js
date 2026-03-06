@@ -41,7 +41,7 @@ export const startReminderJob = () => {
 
         if (incompleteHabits > 0) {
           console.log(
-            `Reminder for ${user.email}: You still have ${incompleteHabits} habits to complete today.`,
+            `Reminder for ${user.username}: You still have ${incompleteHabits} habits to complete today.`,
           );
         }
       }
