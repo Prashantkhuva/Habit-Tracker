@@ -29,10 +29,12 @@ import healthCheckRouter from "./routes/healthcheck.route.js";
 import userRouter from "./routes/user.route.js";
 import habitRouter from "./routes/habit.route.js";
 import habitLogRouter from "./routes/habitlog.route.js";
+import dashboardRouter from "./routes/deshboard.route.js";
 
 app.use("/api/v1/healthcheck", healthCheckRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/habits", habitRouter);
 app.use("/api/v1/habitlog", habitLogRouter);
+app.use("api/v1/dashboard", dashboardRouter);
 
 export { app };

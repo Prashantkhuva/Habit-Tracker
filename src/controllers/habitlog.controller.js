@@ -47,6 +47,8 @@ const getHabitLogs = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 
+  // this is the number of documents to skip based on the current page and limit==>>
+
   const skip = (page - 1) * limit;
 
   const habit = await Habit.findOne({
