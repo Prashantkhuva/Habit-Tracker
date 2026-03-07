@@ -16,6 +16,11 @@ const habitSchema = new Schema(
       type: Number,
       default: 0,
     },
+    cetegory: {
+      type: String,
+      enum: ["Health", "Fitness", "Learning", "Productivity", "Mindfulness"],
+      default: "Productivity",
+    },
     status: {
       type: String,
       enum: ["active", "paused", "archived"],
