@@ -1,7 +1,7 @@
 import cron from "node-cron";
-import Habit from "../models/habit.model.js";
-import HabitLog from "../models/habitLog.model.js";
-import User from "../models/user.model.js";
+import { Habit } from "../models/habit.model.js";
+import { HabitLog } from "../models/habitLog.model.js";
+import { User } from "../models/user.model.js";
 
 export const startReminderJob = () => {
   // runs every day at 9 PM
