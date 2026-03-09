@@ -13,10 +13,11 @@ const habitSchema = new Schema(
       trim: true,
     },
     frequency: {
-      type: Number,
-      default: 0,
+      type: String,
+      enum: ["daily", "weekly"],
+      default: "daily",
     },
-    cetegory: {
+    category: {
       type: String,
       enum: ["Health", "Fitness", "Learning", "Productivity", "Mindfulness"],
       default: "Productivity",

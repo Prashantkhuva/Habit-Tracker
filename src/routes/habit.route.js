@@ -22,6 +22,7 @@ router
   .post(verifyJWT, createHabitValidator(), validate, createHabit);
 
 router.route("/get-habits").get(verifyJWT, getUserHabit);
+router.route("/get-habits").get(verifyJWT, getUserHabit);
 
 router.route("/delete-habit").get(verifyJWT, deleteHabit);
 

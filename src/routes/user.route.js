@@ -13,6 +13,7 @@ import {
   userLoginValidator,
   userRegisterValidator,
   changePasswordValidator,
+  updateUserDetailsValidator,
 } from "../validators/index.js";
 
 const router = Router();
@@ -31,6 +32,8 @@ router
   .route("/change-password")
   .post(verifyJWT, changePasswordValidator(), validate, changeCurrentPassword);
 
-router.route("/update-details").patch(verifyJWT, updateUserDetails);
+router
+  .route("/update-details")
+  .patch(verifyJWT, updateUserDetailsValidator(), validate, updateUserDetails);
 
 export default router;

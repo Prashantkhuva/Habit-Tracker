@@ -7,7 +7,7 @@ import { asyncHandler } from "../utils/asynchandler.js";
 import jwt from "jsonwebtoken";
 
 const createHabit = asyncHandler(async (req, res) => {
-  const { title, description, frequency, cetegory } = req.body;
+  const { title, description, frequency, category } = req.body;
 
   if (!title || !description || !frequency) {
     throw new ApiError(400, "Title, Description and Frequency are required");
@@ -15,7 +15,10 @@ const createHabit = asyncHandler(async (req, res) => {
 
   const allowedFrequency = ["daily", "weekly"];
 
-  if (!allowedFrequency.includes(frequency.toLowerCase())) {
+  if (
+    typeof frequency !== "string" ||
+    !allowedFrequency.includes(frequency.toLowerCase())
+  ) {
     throw new ApiError(400, "Frequency must be 'daily' or 'weekly'");
   }
 
@@ -23,7 +26,7 @@ const createHabit = asyncHandler(async (req, res) => {
     title: title.trim(),
     description: description?.trim() || "",
     frequency: frequency.toLowerCase(),
-    cetegory: cetegory.trim(),
+    category: category.trim(),
     user: req.user._id,
   });
 
@@ -69,13 +72,19 @@ const updateHabitDetails = asyncHandler(async (req, res) => {
 
   const allowedFrequency = ["daily", "weekly"];
 
-  if (frequency && !allowedFrequency.includes(frequency.toLowerCase())) {
+  if (
+    frequency &&
+    (typeof frequency !== "string" ||
+      !allowedFrequency.includes(frequency.toLowerCase()))
+  ) {
     throw new ApiError(400, "Frequency must be 'daily' or 'weekly'");
   }
 
-  if (title) title = title.trim();
-  if (description) description = description.trim();
-  if (frequency) frequency = frequency.toLowerCase();
+  const updateFields = {};
+
+  if (title) updateFields.title = title.trim();
+  if (description) updateFields.description = description.trim();
+  if (frequency) updateFields.frequency = frequency.toLowerCase();
 
   const habit = await Habit.findByIdAndUpdate(
     {
@@ -83,14 +92,10 @@ const updateHabitDetails = asyncHandler(async (req, res) => {
       user: req.user._id,
     },
     {
-      $set: {
-        title,
-        description,
-        frequency,
-      },
+      $set: updateFields,
     },
     {
-      new: true,
+      returnDocument: "after",
     },
   );
 
@@ -115,7 +120,7 @@ const pauseHabit = asyncHandler(async (req, res) => {
       status: "paused",
     },
     {
-      new: true,
+      returnDocument: "after",
     },
   );
 
@@ -136,7 +141,7 @@ const resumeHabit = asyncHandler(async (req, res) => {
       status: "active",
     },
     {
-      new: true,
+      returnDocument: "after",
     },
   );
 
@@ -157,7 +162,7 @@ const archiveHabit = asyncHandler(async (req, res) => {
       status: "archived",
     },
     {
-      new: true,
+      returnDocument: "after",
     },
   );
 

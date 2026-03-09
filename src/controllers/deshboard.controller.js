@@ -74,9 +74,18 @@ const weeklyChart = asyncHandler(async (req, res) => {
   const weeklyData = await HabitLog.aggregate([
     {
       $match: {
-        userId: new mongoose.Types.ObjectId(req.user._id),
+        user: new mongoose.Types.ObjectId(req.user._id),
         completed: true,
-        date: {
+      },
+    },
+    {
+      $addFields: {
+        dateValue: { $toDate: "$date" },
+      },
+    },
+    {
+      $match: {
+        dateValue: {
           $gte: firstDay,
           $lte: lastDay,
         },
@@ -84,12 +93,12 @@ const weeklyChart = asyncHandler(async (req, res) => {
     },
     {
       $addFields: {
-        dayofWeek: { $dayofWeek: "$date" },
+        dayOfWeek: { $dayOfWeek: "$dateValue" },
       },
     },
     {
       $group: {
-        _id: "$dayofWeek",
+        _id: "$dayOfWeek",
         count: { $sum: 1 },
       },
     },
@@ -116,50 +125,79 @@ const weeklyChart = asyncHandler(async (req, res) => {
 
 const longestStreak = asyncHandler(async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.user._id);
-  const { habitId } = req.params;
-
-  const habit = await HabitLog.find({
-    userId,
-    habitId,
+  const habitId = req.params.habitId || req.query.habitId;
+  const matchFilter = {
+    user: userId,
     completed: true,
-  }).sort({ date: -1 });
+  };
+
+  if (habitId) {
+    matchFilter.habit = habitId;
+  }
+
+  const logs = await HabitLog.find({
+    ...matchFilter,
+  }).sort({ date: 1 });
+
+  if (!logs.length) {
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          currentStreak: 0,
+          longestStreak: 0,
+        },
+        "Streak calculated successfully",
+      ),
+    );
+  }
 
   const uniqueDates = [
-    ...new Set(
-      logs.map((log) => new Date(log.date).toISOString().split("T")[0]),
-    ),
-  ];
+    ...new Set(logs.map((log) => new Date(log.date).toDateString())),
+  ].map((value) => new Date(value));
 
   let currentStreak = 0;
-  let longestStreak = 0;
+  let maxStreak = 0;
   let previousDate = null;
 
-  for (const log of logs) {
-    const currentDate = new Date(log.date);
+  for (const currentDate of uniqueDates) {
+    let diff = 0;
 
     if (!previousDate) {
       currentStreak = 1;
     } else {
-      let diff = (currentDate - previousDate) / (1000 * 60 * 60 * 24);
+      diff = (currentDate - previousDate) / (1000 * 60 * 60 * 24);
+      if (diff === 1) {
+        currentStreak++;
+      } else {
+        currentStreak = 1;
+      }
     }
 
-    if (diff === 1) {
-      currentStreak++;
-    } else {
-      currentStreak = 1;
-    }
-
-    longestStreak = Math.max(longestStreak, currentStreak);
+    maxStreak = Math.max(maxStreak, currentStreak);
 
     previousDate = currentDate;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let liveStreak = 0;
+  let cursor = new Date(today);
+
+  const dateSet = new Set(uniqueDates.map((d) => d.toDateString()));
+
+  while (dateSet.has(cursor.toDateString())) {
+    liveStreak++;
+    cursor.setDate(cursor.getDate() - 1);
   }
 
   return res.status(200).json(
     new ApiResponse(
       200,
       {
-        currentStreak,
-        longestStreak,
+        currentStreak: liveStreak,
+        longestStreak: maxStreak,
       },
       "Streak calculated successfully",
     ),

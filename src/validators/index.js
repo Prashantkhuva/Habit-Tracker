@@ -58,6 +58,29 @@ const changePasswordValidator = () => {
   ];
 };
 
+const updateUserDetailsValidator = () => {
+  return [
+    body("fullname")
+      .optional()
+      .trim()
+      .isLength({ min: 3 })
+      .withMessage("Full name must be at least 3 characters long"),
+
+    body("email")
+      .optional()
+      .trim()
+      .isEmail()
+      .withMessage("Email is invalid"),
+
+    body().custom((value) => {
+      if (!value || (!value.fullname && !value.email)) {
+        throw new Error("At least one field is required: fullname or email");
+      }
+      return true;
+    }),
+  ];
+};
+
 /* ---------------- HABIT VALIDATORS ---------------- */
 
 const createHabitValidator = () => {
@@ -70,21 +93,25 @@ const createHabitValidator = () => {
       .withMessage("Habit title must be at least 3 characters long"),
 
     body("description")
-      .optional()
       .trim()
+      .notEmpty()
+      .withMessage("Description is required")
       .isLength({ min: 3 })
       .withMessage("Description must be at least 3 characters long"),
 
     body("category")
+      .trim()
       .notEmpty()
       .withMessage("Category is required")
       .isIn(["Health", "Fitness", "Learning", "Productivity", "Mindfulness"])
       .withMessage("Invalid category"),
 
     body("frequency")
-      .optional()
-      .isNumeric()
-      .withMessage("Frequency must be a number"),
+      .trim()
+      .notEmpty()
+      .withMessage("Frequency is required")
+      .isIn(["daily", "weekly"])
+      .withMessage("Frequency must be 'daily' or 'weekly'"),
   ];
 };
 
@@ -109,8 +136,9 @@ const updateHabitValidator = () => {
 
     body("frequency")
       .optional()
-      .isNumeric()
-      .withMessage("Frequency must be a number"),
+      .trim()
+      .isIn(["daily", "weekly"])
+      .withMessage("Frequency must be 'daily' or 'weekly'"),
   ];
 };
 
@@ -118,6 +146,7 @@ export {
   userRegisterValidator,
   userLoginValidator,
   changePasswordValidator,
+  updateUserDetailsValidator,
   createHabitValidator,
   updateHabitValidator,
 };

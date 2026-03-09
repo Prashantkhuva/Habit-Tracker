@@ -14,5 +14,6 @@ router.route("/getstats").get(verifyJWT, getDashboardStats)
 router.route("/weeklydata").get(verifyJWT, weeklyChart)
 
 router.route("/longest-streak").get(verifyJWT, longestStreak)
+router.route("/longest-streak/:habitId").get(verifyJWT, longestStreak)
 
 export default router

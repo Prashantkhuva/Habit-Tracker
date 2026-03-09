@@ -4,7 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import jwt from "jsonwebtoken";
 
-const generateAccessAndRefreshToken = asyncHandler(async (userId) => {
+const generateAccessAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
 
@@ -20,16 +20,21 @@ const generateAccessAndRefreshToken = asyncHandler(async (userId) => {
 
     user.refreshToken = refreshToken;
 
-    await user.save({ validateBeforeSave: true });
+    await user.save({ validateBeforeSave: false });
 
     return { accessToken, refreshToken };
   } catch (error) {
-    throw ApiError(
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    throw new ApiError(
       500,
-      "Something went wrong while generating access & refresh token",
+      error?.message ||
+        "Something went wrong while generating access & refresh token",
     );
   }
-});
+};
 
 const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password, fullname } = req.body;
@@ -123,7 +128,7 @@ const logoutUser = asyncHandler(async (req, res) => {
       },
     },
     {
-      new: true,
+      returnDocument: "after",
     },
   );
 
@@ -193,7 +198,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
-  const user = await User.findById(req.user._Id);
+  const user = await User.findById(req.user._id);
 
   if (!user) {
     throw new ApiError(404, "User not found");
@@ -215,18 +220,26 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 });
 
 const updateUserDetails = asyncHandler(async (req, res) => {
-  const { fullname, email } = req.body;
+  const { fullname, email } = req.body || {};
+
+  if (!fullname && !email) {
+    throw new ApiError(
+      400,
+      "At least one field is required: fullname or email",
+    );
+  }
+
+  const updateFields = {};
+  if (fullname) updateFields.fullname = fullname;
+  if (email) updateFields.email = email;
 
   const user = await User.findByIdAndUpdate(
-    req.user._Id,
+    req.user._id,
     {
-      $set: {
-        fullname,
-        email,
-      },
+      $set: updateFields,
     },
     {
-      new: true,
+      returnDocument: "after",
     },
   );
 
