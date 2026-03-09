@@ -166,4 +166,34 @@ const longestStreak = asyncHandler(async (req, res) => {
   );
 });
 
-export { getDashboardStats, weeklyChart, longestStreak };
+const heatmapData = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  const habit = await HabitLog.aggregate([
+    {
+      $match: {
+        user: mongoose.Types.ObjectId(userId),
+        completed: true,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: {
+            format: "%Y-%m-%d",
+            date: "$date",
+          },
+        },
+
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: {
+        _id: 1,
+      },
+    },
+  ]);
+});
+
+export { getDashboardStats, weeklyChart, longestStreak, heatmapData };
