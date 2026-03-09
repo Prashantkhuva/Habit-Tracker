@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { validate } from "../middlewares/validator.middleware.js";
 import {
   archiveHabit,
   createHabit,
@@ -9,16 +10,24 @@ import {
   resumeHabit,
   updateHabitDetails,
 } from "../controllers/habit.controller.js";
+import {
+  createHabitValidator,
+  updateHabitValidator,
+} from "../validators/index.js";
 
 const router = Router();
 
-router.route("/create-habit").post(verifyJWT, createHabit);
+router
+  .route("/create-habit")
+  .post(verifyJWT, createHabitValidator(), validate, createHabit);
 
 router.route("/get-habits").get(verifyJWT, getUserHabit);
 
 router.route("/delete-habit").get(verifyJWT, deleteHabit);
 
-router.route("/update-habit/:habitId").patch(verifyJWT, updateHabitDetails);
+router
+  .route("/update-habit/:habitId")
+  .patch(verifyJWT, updateHabitValidator(), validate, updateHabitDetails);
 
 router.route("/:habitId/pause").patch(verifyJWT, pauseHabit);
 

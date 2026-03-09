@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { validate } from "../middlewares/validator.middleware.js";
 import {
   changeCurrentPassword,
   loginUser,
@@ -8,12 +9,17 @@ import {
   registerUser,
   updateUserDetails,
 } from "../controllers/user.controller.js";
+import {
+  userLoginValidator,
+  userRegisterValidator,
+  changePasswordValidator,
+} from "../validators/index.js";
 
 const router = Router();
 
-router.route("/register").post(registerUser);
+router.route("/register").post(userRegisterValidator(), validate, registerUser);
 
-router.route("/login").post(loginUser);
+router.route("/login").post(userLoginValidator(), validate, loginUser);
 
 router.route("/refresh-token").post(refreshAccessToken);
 
@@ -21,7 +27,9 @@ router.route("/refresh-token").post(refreshAccessToken);
 
 router.route("/logout").post(verifyJWT, logoutUser);
 
-router.route("/change-password").post(verifyJWT, changeCurrentPassword);
+router
+  .route("/change-password")
+  .post(verifyJWT, changePasswordValidator(), validate, changeCurrentPassword);
 
 router.route("/update-details").patch(verifyJWT, updateUserDetails);
 
