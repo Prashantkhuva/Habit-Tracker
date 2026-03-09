@@ -1,28 +1,27 @@
 # Habit Tracker API
 
-A backend system for tracking daily habits, monitoring streaks, and analyzing progress through dashboard analytics.
+A backend application that helps users build and maintain daily habits.
+Users can create habits, track daily completion, analyze progress, and maintain streaks.
 
-This project is built as a **SaaS-style habit tracking backend** using Node.js and MongoDB.
-It demonstrates authentication, REST API design, analytics endpoints, and habit tracking logic.
+This project is built using **Node.js, Express.js, and MongoDB**.
 
 ---
 
-## Features
+# Features
 
 ### Authentication
 
 * User registration
 * User login
-* JWT authentication
-* Protected routes
+* JWT based authentication
+* Secure protected routes
 
 ### Habit Management
 
 * Create habits
 * Update habits
 * Delete habits
-* View all habits
-* Pagination support
+* Get all user habits
 
 ### Habit Status
 
@@ -32,13 +31,13 @@ Each habit can have a status:
 * paused
 * archived
 
-This allows users to temporarily pause or archive habits.
+This helps users temporarily stop or archive habits.
 
 ---
 
 ### Habit Categories
 
-Habits can be organized into categories such as:
+Habits can be grouped by categories:
 
 * Health
 * Fitness
@@ -48,20 +47,23 @@ Habits can be organized into categories such as:
 
 Example:
 
+```
 Workout → Fitness
 Reading → Learning
+Meditation → Health
+```
 
 ---
 
-### Habit Completion Logs
+### Habit Logs
 
-Users mark habits as completed each day.
+Users mark habits as completed daily.
 
 Example log:
 
 ```
 Habit: Workout
-Date: 2026-03-06
+Date: 2026-03-10
 Completed: true
 ```
 
@@ -69,7 +71,7 @@ Completed: true
 
 ### Streak System
 
-The application calculates:
+The system tracks:
 
 **Current Streak**
 
@@ -77,62 +79,43 @@ Number of consecutive days the habit has been completed.
 
 **Longest Streak**
 
-Highest streak the user has ever achieved.
-
-Example:
-
-```
-Mon Tue Wed Thu
-Current streak = 4
-Longest streak = 7
-```
+Highest streak achieved by the user.
 
 ---
 
 ### Dashboard Analytics
 
-The dashboard provides statistics such as:
+Dashboard provides insights such as:
 
 * Total habits
-* Total completions
+* Completed habits today
+* Completion rate
+* Weekly completion data
 * Current streak
 * Longest streak
 
 ---
 
-### Weekly Completion Chart
+### Reminder System
 
-Shows how many habits were completed each day of the week.
-
-Example:
-
-```
-Mon → 3
-Tue → 2
-Wed → 4
-Thu → 1
-Fri → 0
-Sat → 2
-Sun → 3
-```
-
-This feature uses MongoDB aggregation.
+The backend runs a scheduled job using **node-cron** that reminds users to complete habits if they have not completed them by the end of the day.
 
 ---
 
-## Tech Stack
+# Tech Stack
 
-Backend built using:
+Backend:
 
 * Node.js
 * Express.js
 * MongoDB
 * Mongoose
 * JWT Authentication
+* express-validator
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```
 src
@@ -140,27 +123,24 @@ src
  ├── models
  ├── routes
  ├── middlewares
+ ├── validators
+ ├── jobs
  ├── utils
- └── app.js
+ └── config
 ```
-
-Main controllers:
-
-* Auth Controller
-* Habit Controller
-* Habit Log Controller
-* Dashboard Controller
 
 ---
 
-## API Endpoints
+# API Routes
 
-### Authentication
+### Auth
 
 ```
-POST /api/auth/register
-POST /api/auth/login
-POST /api/auth/logout
+POST /api/v1/users/register
+POST /api/v1/users/login
+POST /api/v1/users/logout
+POST /api/v1/users/change-password
+PATCH /api/v1/users/update-details
 ```
 
 ---
@@ -168,10 +148,12 @@ POST /api/auth/logout
 ### Habits
 
 ```
-POST /api/habits
-GET /api/habits
-PATCH /api/habits/:id
-DELETE /api/habits/:id
+POST   /api/v1/habits/create-habit
+GET    /api/v1/habits/get-habits
+PATCH  /api/v1/habits/update-habit/:habitId
+PATCH  /api/v1/habits/:habitId/pause
+PATCH  /api/v1/habits/:habitId/resume
+PATCH  /api/v1/habits/:habitId/archive
 ```
 
 ---
@@ -179,8 +161,9 @@ DELETE /api/habits/:id
 ### Habit Logs
 
 ```
-POST /api/habit-log
-GET /api/habit-log/:habitId
+POST /api/v1/habitlog/:habitId/complete
+GET  /api/v1/habitlog/:habitId/logs
+GET  /api/v1/habitlog/:habitId/streak
 ```
 
 ---
@@ -188,55 +171,24 @@ GET /api/habit-log/:habitId
 ### Dashboard
 
 ```
-GET /api/dashboard/stats
-GET /api/dashboard/weekly-chart
-GET /api/dashboard/streak
+GET /api/v1/dashboard/getstats
+GET /api/v1/dashboard/weeklydata
+GET /api/v1/dashboard/longest-streak
 ```
 
 ---
 
-## Database Schema
+# Setup Instructions
 
-### User
-
-```
-name
-email
-password
-```
-
-### Habit
+### 1 Clone repository
 
 ```
-title
-category
-status
-userId
-createdAt
-```
-
-### HabitLog
-
-```
-habitId
-userId
-date
-completed
+git clone https://github.com/Prashantkhuva/Habit-Tracker.git
 ```
 
 ---
 
-## Setup Instructions
-
-### 1. Clone the repository
-
-```
-git clone https://github.com/yourusername/habit-tracker.git
-```
-
----
-
-### 2. Install dependencies
+### 2 Install dependencies
 
 ```
 npm install
@@ -244,51 +196,58 @@ npm install
 
 ---
 
-### 3. Create environment file
-
-Create a `.env` file and add:
+### 3 Create `.env` file
 
 ```
-PORT=5000
+PORT=8000
 MONGODB_URI=your_mongodb_connection
-JWT_SECRET=your_secret_key
+ACCESS_TOKEN_SECRET=your_secret
+REFRESH_TOKEN_SECRET=your_secret
 ```
 
 ---
 
-### 4. Run the server
+### 4 Run the server
 
 ```
 npm run dev
 ```
 
-Server will run on:
+Server runs at:
 
 ```
-http://localhost:5000
+http://localhost:8000
 ```
 
 ---
 
-## Future Improvements
+# Example Workflow
 
-Planned features:
-
-* Reminder notifications
-* Monthly habit heatmap
-* Mobile-friendly frontend
-* Social habit sharing
+1. Register user
+2. Login user
+3. Create habit
+4. Mark habit as completed
+5. View dashboard stats
 
 ---
 
-## Author
+# Future Improvements
+
+* Habit heatmap analytics
+* Frontend dashboard (React)
+* Email reminders
+* Mobile support
+
+---
+
+# Author
 
 Prashant Khuva
 
-Full Stack Developer (Learning Phase)
+Learning backend development and building projects in public.
 
 ---
 
-## License
+# License
 
-This project is for educational and portfolio purposes.
+This project is for learning and portfolio purposes.

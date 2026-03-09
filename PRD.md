@@ -1,345 +1,233 @@
-# Habit Tracker – Product Requirements Document (PRD)
+# Product Requirements Document (PRD)
 
-## 1. Overview
+## Product Name
 
-Habit Tracker is a full-stack web application that helps users build and maintain daily habits.
-Users can create habits, mark them as completed, track streaks, and analyze their progress using dashboard analytics.
-
-The goal of the project is to simulate a real SaaS-style habit tracking platform with authentication, analytics, and habit management features.
+Habit Tracker
 
 ---
 
-## 2. Objectives
+# Overview
 
-* Help users track daily habits consistently
-* Provide progress insights through analytics
-* Encourage long-term consistency using streak tracking
-* Build a production-style backend system for learning full-stack development
+Habit Tracker is a backend system that helps users track daily habits and analyze their consistency.
+
+The system allows users to create habits, log daily completion, track streaks, and analyze progress through dashboard analytics.
+
+The goal of this project is to simulate a real-world SaaS habit tracking platform.
 
 ---
 
-## 3. Target Users
+# Objectives
 
-* Students building productivity habits
+* Help users maintain daily habits
+* Provide insights into user consistency
+* Encourage long-term habit building
+* Provide analytics through a dashboard
+
+---
+
+# Target Users
+
+* Students building productive habits
+* Professionals tracking routines
 * Developers learning consistency
-* Individuals tracking daily routines
-* Anyone wanting to improve daily discipline
+* Anyone wanting to improve discipline
 
 ---
 
-## 4. Core Features
+# Core Features
 
-### 4.1 Authentication System
+## Authentication
 
 Users must be able to securely access their accounts.
 
 Features:
 
-* User registration
-* User login
+* Register account
+* Login account
 * JWT authentication
-* Secure protected routes
+* Protected API routes
 
 ---
 
-### 4.2 Habit Management
+## Habit Management
 
-Users can manage their personal habits.
+Users can manage their habits.
 
-Features:
+Capabilities:
 
-* Create a habit
-* Update a habit
-* Delete a habit
-* View all habits
-* Pagination support
-
-Habit example:
-
-```
-Workout
-Read 10 pages
-Meditation
-```
+* Create habit
+* Update habit
+* Delete habit
+* View habits
 
 ---
 
-### 4.3 Habit Status
-
-Each habit can have a status.
-
-Status values:
-
-```
-active
-paused
-archived
-```
-
-Purpose:
-
-* Active habits appear in dashboard
-* Paused habits temporarily stop tracking
-* Archived habits are stored but hidden
-
----
-
-### 4.4 Habit Categories
+## Habit Categories
 
 Habits can be grouped into categories.
 
 Examples:
 
-```
-Health
-Fitness
-Learning
-Productivity
-Mindfulness
-```
-
-Example:
-
-```
-Workout → Fitness
-Reading → Learning
-Meditation → Health
-```
+* Health
+* Fitness
+* Learning
+* Productivity
+* Mindfulness
 
 ---
 
-### 4.5 Habit Completion Logs
+## Habit Status
 
-Users mark habits as completed each day.
+Habits support status tracking.
+
+Possible states:
+
+* active
+* paused
+* archived
+
+This allows users to temporarily stop habits without deleting them.
+
+---
+
+## Habit Logs
+
+Users log daily habit completion.
 
 Example log:
 
 ```
 User: 123
 Habit: Workout
-Date: 2026-03-06
+Date: 2026-03-10
 Completed: true
 ```
 
-These logs power the analytics features.
-
 ---
 
-### 4.6 Streak System
+## Streak Tracking
 
-The system calculates streaks based on habit completion.
+The system calculates streaks.
 
 Types:
 
-**Current Streak**
-Number of consecutive days the habit is currently maintained.
+Current streak
 
-**Longest Streak**
-The highest streak the user has ever achieved.
+Longest streak
 
 Example:
 
 ```
 Mon Tue Wed Thu
 Current streak = 4
-Longest streak = 7
+Longest streak = 10
 ```
 
 ---
 
-### 4.7 Dashboard Analytics
+## Dashboard Analytics
 
-The dashboard provides user insights.
+Users can view their performance metrics.
 
-Features:
+Dashboard includes:
 
 * Total habits
-* Total completions
+* Completed habits today
+* Completion rate
+* Weekly completion data
 * Current streak
 * Longest streak
-* Weekly completion statistics
 
 ---
 
-### 4.8 Weekly Completion Chart
+## Reminder System
 
-Displays the number of habits completed each day of the week.
+A scheduled job runs daily to check incomplete habits.
 
-Example data:
-
-```
-Mon → 3
-Tue → 2
-Wed → 4
-Thu → 1
-Fri → 0
-Sat → 2
-Sun → 3
-```
-
-Implementation uses MongoDB aggregation pipeline:
-
-* `$match`
-* `$group`
+If habits are incomplete, the system sends reminders.
 
 ---
 
-## 5. Backend Architecture
+# Backend Architecture
 
-Backend built using:
+Technologies used:
 
 * Node.js
 * Express.js
 * MongoDB
 * Mongoose
-
-Main modules:
-
-```
-Auth Controller
-Habit Controller
-Habit Log Controller
-Dashboard Controller
-```
+* JWT
+* express-validator
 
 ---
 
-## 6. API Endpoints
-
-### Authentication
-
-```
-POST /api/auth/register
-POST /api/auth/login
-POST /api/auth/logout
-```
-
----
-
-### Habits
-
-```
-POST /api/habits
-GET /api/habits
-PATCH /api/habits/:id
-DELETE /api/habits/:id
-```
-
----
-
-### Habit Logs
-
-```
-POST /api/habit-log
-GET /api/habit-log/:habitId
-```
-
----
-
-### Dashboard
-
-```
-GET /api/dashboard/stats
-GET /api/dashboard/weekly-chart
-GET /api/dashboard/streak
-```
-
----
-
-## 7. Database Design
+# Database Models
 
 ### User
 
 ```
-name
 email
+username
 password
+fullname
 ```
+
+---
 
 ### Habit
 
 ```
 title
+description
 category
 status
-userId
-createdAt
+user
 ```
+
+---
 
 ### HabitLog
 
 ```
-habitId
-userId
+habit
+user
 date
 completed
 ```
 
-Indexes:
+---
 
-```
-userId
-habitId
-date
-```
+# API Design
+
+RESTful API structure.
+
+Main modules:
+
+* Authentication
+* Habits
+* Habit Logs
+* Dashboard
 
 ---
 
-## 8. Deployment Plan
+# Future Enhancements
 
-Backend deployment:
+Possible future features:
 
-* Node.js API hosted on Render or Railway
-* MongoDB Atlas for database
-
-Example API URL:
-
-```
-https://habit-tracker-api.onrender.com
-```
-
----
-
-## 9. Frontend (Future Phase)
-
-Frontend built using React.
-
-Pages:
-
-```
-Login
-Register
-Dashboard
-Habits List
-Habit Progress
-Analytics
-```
-
-Charts:
-
-* Weekly completion chart
-* Streak visualization
-
----
-
-## 10. Future Improvements
-
-Potential upgrades:
-
-* Reminder notifications
-* Mobile app
-* Habit sharing
+* Habit heatmap analytics
+* Email notifications
+* AI habit suggestions
 * Social accountability
-* Monthly heatmap like GitHub contributions
+* Mobile app support
 
 ---
 
-## 11. Project Goal
+# Project Goal
 
-The purpose of this project is to build a **production-style full-stack application** demonstrating:
+The goal of this project is to demonstrate backend development skills including:
 
 * Authentication systems
-* REST API design
-* MongoDB aggregation
-* Data analytics features
-* Scalable backend architecture
+* API design
+* Database modeling
+* Analytics queries
+* Background jobs
