@@ -5,16 +5,22 @@ const habitlogSchema = new Schema(
     habit: {
       type: Schema.Types.ObjectId,
       ref: "Habit",
+      index: true,
     },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      index: true,
     },
     date: {
       type: Number,
+      required: true,
+      index: true,
     },
     completed: {
       type: Boolean,
+      required: true,
+      index: true,
     },
   },
   {
