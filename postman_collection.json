@@ -1,0 +1,37 @@
+{
+  "info": {
+    "name": "Habit Tracker API",
+    "description": "API collection for Habit Tracker backend",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/auth/register"
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/auth/login"
+      }
+    },
+    {
+      "name": "Create Habit",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/habits"
+      }
+    },
+    {
+      "name": "Get Habits",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/habits"
+      }
+    }
+  ]
+}
