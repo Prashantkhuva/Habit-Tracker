@@ -22,9 +22,8 @@ router
   .post(verifyJWT, createHabitValidator(), validate, createHabit);
 
 router.route("/get-habits").get(verifyJWT, getUserHabit);
-router.route("/get-habits").get(verifyJWT, getUserHabit);
 
-router.route("/delete-habit").delete(verifyJWT, deleteHabit);
+router.route("/delete-habit/:habitId").delete(verifyJWT, deleteHabit);
 
 router
   .route("/update-habit/:habitId")

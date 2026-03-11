@@ -46,7 +46,11 @@ const getUserHabit = asyncHandler(async (req, res) => {
 });
 
 const deleteHabit = asyncHandler(async (req, res) => {
-  const { habitId } = req.params;
+  const habitId = req.params.habitId || req.query.habitId || req.body.habitId;
+
+  if (!habitId) {
+    throw new ApiError(400, "habitId is required");
+  }
 
   const habit = await Habit.findOneAndDelete({
     _id: habitId,
