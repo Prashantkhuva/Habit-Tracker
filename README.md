@@ -1,97 +1,258 @@
-![Node.js](https://img.shields.io/badge/Node.js-18-green)
-![Express](https://img.shields.io/badge/Express-Backend-black)
-![MongoDB](https://img.shields.io/badge/MongoDB-Database-green)
-![License](https://img.shields.io/badge/License-MIT-blue)
-
 # Habit Tracker API
 
 A production-ready backend API for tracking habits, streaks, and analytics.
-Built using **Node.js, Express.js, and MongoDB** with authentication, cron reminders, and analytics.
+Built using **Node.js, Express.js, and MongoDB** with JWT authentication.
 
 ---
 
-## Features
+## Live API
 
-* User authentication with JWT
-* Create / update / delete habits
-* Habit completion logs
-* Streak tracking
-* Weekly analytics
-* Dashboard statistics
-* Automated reminder jobs using cron
-* Request logging with Winston
-* Security middleware and validation
-* MongoDB indexing and query optimization
+Base URL
+
+```
+https://habit-tracker-t0o0.onrender.com/api/v1
+```
+
+Health Check
+
+```
+https://habit-tracker-t0o0.onrender.com/api/v1/healthcheck
+```
 
 ---
 
-## Tech Stack
+# Features
+
+* User Authentication (JWT)
+* Habit CRUD
+* Habit Completion Logs
+* Habit Streak Tracking
+* Weekly Analytics
+* Dashboard Statistics
+* Secure API Routes
+* Validation Middleware
+* Error Handling
+* Production Deployment
+
+---
+
+# Tech Stack
+
+Backend
 
 * Node.js
 * Express.js
+
+Database
+
 * MongoDB
-* JWT Authentication
-* Node Cron
-* Winston Logger
+* Mongoose
+
+Authentication
+
+* JWT (Access + Refresh Token)
+
+Tools
+
+* Postman
+* Render Deployment
 
 ---
 
-## Installation
+# Installation
 
-```bash
+Clone repository
+
+```
 git clone https://github.com/Prashantkhuva/Habit-Tracker.git
-cd Habit-Tracker
+```
+
+Install dependencies
+
+```
 npm install
+```
+
+Create `.env` file
+
+```
+PORT=5000
+MONGODB_URL=your_mongodb_uri
+ACCESS_TOKEN_SECRET=your_secret
+REFRESH_TOKEN_SECRET=your_secret
+```
+
+Run server
+
+```
 npm run dev
 ```
 
 ---
 
-## Environment Variables
+# API Endpoints
 
-Create a `.env` file using `.env.example`.
+## User Routes
 
----
+### Register
 
-## API Endpoints
+POST `/api/v1/users/register`
 
-| Method | Endpoint           | Description         |
-| ------ | ------------------ | ------------------- |
-| POST   | /api/auth/register | Register user       |
-| POST   | /api/auth/login    | Login user          |
-| POST   | /api/habits        | Create habit        |
-| GET    | /api/habits        | Get all habits      |
-| PATCH  | /api/habits/:id    | Update habit        |
-| DELETE | /api/habits/:id    | Delete habit        |
-| POST   | /api/logs          | Mark habit complete |
+Body
 
----
-
-## System Architecture
-
-This project follows a **modular backend architecture**:
-
-* Controllers → handle requests and responses
-* Services → business logic
-* Models → database schemas
-* Middleware → authentication, validation, logging
-* Jobs → scheduled tasks (cron reminders)
-
-Architecture diagrams are available in the `/docs` folder.
+```
+{
+ "username": "prashantkhuva",
+ "email": "prashant@user.com",
+ "password": "password1234"
+}
+```
 
 ---
 
-## Logging
+### Login
 
-Logging is implemented using **Winston**:
+POST `/api/v1/users/login`
 
-* Console logs
-* File logs
-* MongoDB logs
+```
+{
+ "email": "prashant@user.com",
+ "password": "password1234"
+}
+```
 
 ---
 
-## Author
+### Refresh Token
+
+POST `/api/v1/users/refresh-token`
+
+---
+
+### Logout
+
+POST `/api/v1/users/logout`
+
+Authorization required
+
+```
+Bearer TOKEN
+```
+
+---
+
+# Habit Routes
+
+### Create Habit
+
+POST `/api/v1/habits/create-habit`
+
+```
+{
+ "title": "Cycling",
+ "category": "Fitness",
+ "description": "Daily workout",
+ "frequency": "daily"
+}
+```
+
+---
+
+### Get Habits
+
+GET `/api/v1/habits/get-habits`
+
+---
+
+### Update Habit
+
+PATCH `/api/v1/habits/update-habit/:habitId`
+
+---
+
+### Delete Habit
+
+DELETE `/api/v1/habits/delete-habit`
+
+---
+
+# Habit Log Routes
+
+### Complete Habit
+
+POST
+
+```
+/api/v1/habitlog/:habitId/complete
+```
+
+---
+
+### Habit Logs
+
+GET
+
+```
+/api/v1/habitlog/:habitId/logs
+```
+
+---
+
+### Habit Streak
+
+GET
+
+```
+/api/v1/habitlog/:habitId/streak
+```
+
+---
+
+# Dashboard Routes
+
+### Dashboard Stats
+
+GET
+
+```
+/api/v1/dashboard/getstats
+```
+
+---
+
+### Longest Streak
+
+GET
+
+```
+/api/v1/dashboard/longest-streak
+```
+
+---
+
+### Weekly Data
+
+GET
+
+```
+/api/v1/dashboard/weeklydata
+```
+
+---
+
+# Testing API
+
+Import the **Postman collection** provided in this repository.
+
+```
+postman_collection.json
+```
+
+---
+
+# Author
 
 Prashant Khuva
-Learning backend development in public 🚀
+
+Backend Developer
+Learning in public 🚀

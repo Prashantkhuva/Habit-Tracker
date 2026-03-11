@@ -1,36 +1,78 @@
 {
   "info": {
     "name": "Habit Tracker API",
-    "description": "API collection for Habit Tracker backend",
-    "version": "1.0.0"
+    "description": "Postman collection for Habit Tracker backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://habit-tracker-t0o0.onrender.com/api/v1"
+    }
+  ],
   "item": [
     {
       "name": "Register",
       "request": {
         "method": "POST",
-        "url": "{{baseUrl}}/api/auth/register"
+        "url": "{{baseUrl}}/users/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\"username\":\"prashantkhuva\",\n\"email\":\"prashant@user.com\",\n\"password\":\"password1234\"\n}"
+        }
       }
     },
     {
       "name": "Login",
       "request": {
         "method": "POST",
-        "url": "{{baseUrl}}/api/auth/login"
+        "url": "{{baseUrl}}/users/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\"email\":\"prashant@user.com\",\n\"password\":\"password1234\"\n}"
+        }
       }
     },
     {
       "name": "Create Habit",
       "request": {
         "method": "POST",
-        "url": "{{baseUrl}}/api/habits"
+        "url": "{{baseUrl}}/habits/create-habit"
       }
     },
     {
       "name": "Get Habits",
       "request": {
         "method": "GET",
-        "url": "{{baseUrl}}/api/habits"
+        "url": "{{baseUrl}}/habits/get-habits"
+      }
+    },
+    {
+      "name": "Dashboard Stats",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/dashboard/getstats"
+      }
+    },
+    {
+      "name": "Weekly Data",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/dashboard/weeklydata"
+      }
+    },
+    {
+      "name": "Longest Streak",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/dashboard/longest-streak"
+      }
+    },
+    {
+      "name": "Healthcheck",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/healthcheck"
       }
     }
   ]
