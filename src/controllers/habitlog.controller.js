@@ -19,11 +19,12 @@ const completeHabitLog = asyncHandler(async (req, res) => {
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const dayTimestamp = today.getTime();
 
   const alreadyCompleted = await HabitLog.findOne({
     habit: habitId,
     user: req.user._id,
-    date: today,
+    date: dayTimestamp,
   });
 
   if (alreadyCompleted) {
@@ -33,7 +34,8 @@ const completeHabitLog = asyncHandler(async (req, res) => {
   const habitLog = await HabitLog.create({
     habit: habitId,
     user: req.user._id,
-    date: today,
+    date: dayTimestamp,
+    completed: true,
   });
 
   return res
