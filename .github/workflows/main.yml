@@ -10,6 +10,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Create Deployment
+        uses: actions/github-script@v7
+        id: deployment
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: "production",
+              required_contexts: []
+            });
+            return deployment.data.id;
+
       - name: Trigger Render Deploy
         run: |
           curl -X POST "https://api.render.com/deploy/srv-d6ob966a2pns73bnqecg?key=qvq2mwG922E"
+
+      - name: Mark Deployment Success
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: ${{ steps.deployment.outputs.result }},
+              state: "success",
+              environment_url: "https://habit-tracker-t0o0.onrender.com"
+            });
