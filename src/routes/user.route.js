@@ -8,6 +8,7 @@ import {
   refreshAccessToken,
   registerUser,
   updateUserDetails,
+  getCurrentUser,
 } from "../controllers/user.controller.js";
 import {
   userLoginValidator,
@@ -27,6 +28,8 @@ router.route("/refresh-token").post(refreshAccessToken);
 // Secure routes
 
 router.route("/logout").post(verifyJWT, logoutUser);
+
+router.route("/current-user").get(verifyJWT, getCurrentUser);
 
 router
   .route("/change-password")
