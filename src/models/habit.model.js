@@ -22,6 +22,10 @@ const habitSchema = new Schema(
       enum: ["Health", "Fitness", "Learning", "Productivity", "Mindfulness"],
       default: "Productivity",
     },
+    color: {
+      type: String,
+      default: "#4F6F64",
+    },
     status: {
       type: String,
       enum: ["active", "paused", "archived"],
