@@ -37,7 +37,7 @@ const generateAccessAndRefreshToken = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password, fullname } = req.body;
+  const { username, email, password } = req.body;
 
   const existedUser = await User.findOne({
     $or: [{ username }, { email }],
@@ -48,14 +48,13 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.create({
-    fullname,
     username: username.toLowerCase(),
     email,
     password,
     isEmailVerified: false,
   });
 
-  const createdUser = await User.findById(user._id).select(
+  const createdUser = await User.fidById(user._id).select(
     "-password -refreshToken",
   );
 

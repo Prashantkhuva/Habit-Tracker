@@ -24,12 +24,6 @@ const userRegisterValidator = () => {
       .withMessage("Password is required")
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters long"),
-
-    body("fullname")
-      .optional()
-      .trim()
-      .isLength({ min: 3 })
-      .withMessage("Full name must be at least 3 characters long"),
   ];
 };
 
@@ -66,11 +60,7 @@ const updateUserDetailsValidator = () => {
       .isLength({ min: 3 })
       .withMessage("Full name must be at least 3 characters long"),
 
-    body("email")
-      .optional()
-      .trim()
-      .isEmail()
-      .withMessage("Email is invalid"),
+    body("email").optional().trim().isEmail().withMessage("Email is invalid"),
 
     body().custom((value) => {
       if (!value || (!value.fullname && !value.email)) {
