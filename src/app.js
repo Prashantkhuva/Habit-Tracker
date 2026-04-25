@@ -38,8 +38,8 @@ app.use(
   cors({
     origin:
       process.env.CORS_ORIGIN?.split(",") ||
-      process.env.CORS_OROGIN?.split(",") ||
-      "http://localhost:5173",
+      process.env.CORS_OROGIN?.split(","),
+
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
