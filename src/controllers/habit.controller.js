@@ -7,7 +7,7 @@ import { asyncHandler } from "../utils/asynchandler.js";
 import jwt from "jsonwebtoken";
 
 const createHabit = asyncHandler(async (req, res) => {
-  const { title, description, frequency, category, color } = req.body;
+  const { title, description, frequency, category, color, type } = req.body;
 
   if (!title || !description || !frequency) {
     throw new ApiError(400, "Title, Description and Frequency are required");
