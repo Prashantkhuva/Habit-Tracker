@@ -38,7 +38,8 @@ app.use(
   cors({
     origin:
       process.env.CORS_ORIGIN?.split(",") ||
-      process.env.CORS_OROGIN?.split(","),
+      process.env.CORS_OROGIN?.split(",") || "http://localhost:5173" || "https://habit-flow-ten-beta.vercel.app",
+
 
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
