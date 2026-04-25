@@ -36,6 +36,11 @@ const habitSchema = new Schema(
       ref: "User",
       required: true,
     },
+    type: {
+      type: String,
+      enum: ["boolean", "streak", "quantity"],
+      default: "boolean",
+    },
   },
   {
     timestamps: true,
