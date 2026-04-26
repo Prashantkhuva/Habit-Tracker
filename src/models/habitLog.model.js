@@ -17,6 +17,10 @@ const habitlogSchema = new Schema(
       required: true,
       index: true,
     },
+    quantity: {
+      type: Number,
+      default: 0,
+    },
     completed: {
       type: Boolean,
       required: true,
