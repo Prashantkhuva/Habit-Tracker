@@ -7,7 +7,12 @@ import logger from "./utils/logger.js";
 import morgan from "morgan";
 
 const app = express();
-const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000, // 100 → 1000
+  skip: (req) => req.ip === "::1" || req.ip === "127.0.0.1", // localhost skip
+});
+
 const morganFormat = ":method :url :status :response-time ms";
 
 //  Basic configuration
