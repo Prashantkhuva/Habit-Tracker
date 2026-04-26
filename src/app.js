@@ -36,11 +36,20 @@ app.use(
 // Cors( Cross-Origin Resource Sharing ) configuration
 app.use(
   cors({
-    origin:
-      process.env.CORS_ORIGIN?.split(",") ||
-      process.env.CORS_OROGIN?.split(",") || "http://localhost:5173" || "https://habit-flow-ten-beta.vercel.app",
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://habit-flow-ten-beta.vercel.app",
+        ...(process.env.CORS_ORIGIN?.split(",") || []),
+      ];
 
-
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
