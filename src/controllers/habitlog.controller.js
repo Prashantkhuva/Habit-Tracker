@@ -17,6 +17,7 @@ const completeHabitLog = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Habit not found or unauthorized");
   }
 
+  // 🔥 streak ke liye (same as before)
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const dayTimestamp = today.getTime();
@@ -31,10 +32,12 @@ const completeHabitLog = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Habit already completed today");
   }
 
+  // 🔥 IMPORTANT FIX
   const habitLog = await HabitLog.create({
     habit: habitId,
     user: req.user._id,
-    date: dayTimestamp,
+    date: dayTimestamp, // ✅ streak ke liye
+    completedAt: new Date(), // ✅ REAL TIME 🔥
     completed: true,
   });
 
