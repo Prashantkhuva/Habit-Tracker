@@ -205,12 +205,12 @@ const longestStreak = asyncHandler(async (req, res) => {
 });
 
 const heatmapData = asyncHandler(async (req, res) => {
-  const { userId } = req.params;
+  const userId = new mongoose.Types.ObjectId(req.user._id); // ← req.user se lo
 
-  const habit = await HabitLog.aggregate([
+  const data = await HabitLog.aggregate([
     {
       $match: {
-        user: mongoose.Types.ObjectId(userId),
+        user: userId,
         completed: true,
       },
     },
@@ -219,19 +219,20 @@ const heatmapData = asyncHandler(async (req, res) => {
         _id: {
           $dateToString: {
             format: "%Y-%m-%d",
-            date: "$date",
+            date: { $toDate: "$date" }, // ← $toDate add karo
           },
         },
-
         count: { $sum: 1 },
       },
     },
     {
-      $sort: {
-        _id: 1,
-      },
+      $sort: { _id: 1 },
     },
   ]);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, data, "Heatmap data fetched successfully"));
 });
 
 export { getDashboardStats, weeklyChart, longestStreak, heatmapData };

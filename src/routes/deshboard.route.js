@@ -4,16 +4,19 @@ import {
   getDashboardStats,
   longestStreak,
   weeklyChart,
+  heatmapData,
 } from "../controllers/deshboard.controller.js";
 
+const router = Router();
 
-const router = Router()
+router.route("/getstats").get(verifyJWT, getDashboardStats);
 
-router.route("/getstats").get(verifyJWT, getDashboardStats)
+router.route("/weeklydata").get(verifyJWT, weeklyChart);
 
-router.route("/weeklydata").get(verifyJWT, weeklyChart)
+router.route("/longest-streak").get(verifyJWT, longestStreak);
 
-router.route("/longest-streak").get(verifyJWT, longestStreak)
-router.route("/longest-streak/:habitId").get(verifyJWT, longestStreak)
+router.route("/longest-streak/:habitId").get(verifyJWT, longestStreak);
 
-export default router
+router.route("/heatmap").get(verifyJWT, heatmapData);
+
+export default router;
