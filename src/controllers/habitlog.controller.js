@@ -148,4 +148,14 @@ const getHabitStreak = asyncHandler(async (req, res) => {
     );
 });
 
-export { completeHabitLog, getHabitLogs, getHabitStreak };
+const getAllHabitLogs = asyncHandler(async (req, res) => {
+  const logs = await HabitLog.find({
+    user: req.user._id,
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { logs }, "All logs fetched"));
+});
+
+export { completeHabitLog, getHabitLogs, getHabitStreak, getAllHabitLogs };
