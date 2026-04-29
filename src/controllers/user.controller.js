@@ -217,9 +217,9 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 });
 
 const updateUserDetails = asyncHandler(async (req, res) => {
-  const { fullname, email } = req.body || {};
+  const { username, email } = req.body || {};
 
-  if (!fullname && !email) {
+  if (!username && !email) {
     throw new ApiError(
       400,
       "At least one field is required: fullname or email",
@@ -227,7 +227,7 @@ const updateUserDetails = asyncHandler(async (req, res) => {
   }
 
   const updateFields = {};
-  if (fullname) updateFields.fullname = fullname;
+  if (username) updateFields.username = username;
   if (email) updateFields.email = email;
 
   const user = await User.findByIdAndUpdate(
