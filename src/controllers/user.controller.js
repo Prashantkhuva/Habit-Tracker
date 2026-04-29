@@ -251,6 +251,20 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
 });
 
+const deleteUser = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  const user = await User.findByIdAndDelete(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Account deleted successfully"));
+});
+
 export {
   generateAccessAndRefreshToken,
   registerUser,
@@ -260,4 +274,5 @@ export {
   changeCurrentPassword,
   updateUserDetails,
   getCurrentUser,
+  deleteUser
 };

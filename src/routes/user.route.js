@@ -39,4 +39,6 @@ router
   .route("/update-details")
   .patch(verifyJWT, updateUserDetailsValidator(), validate, updateUserDetails);
 
+router.route("/delete-account").delete(verifyJWT, deleteUser);
+
 export default router;
