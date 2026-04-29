@@ -54,6 +54,11 @@ const changePasswordValidator = () => {
 
 const updateUserDetailsValidator = () => {
   return [
+    body("username")
+      .optional()
+      .trim()
+      .isLength({ min: 3 })
+      .withMessage("Username must be at least 3 characters long"),
     body("fullname")
       .optional()
       .trim()
