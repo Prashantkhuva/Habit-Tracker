@@ -220,31 +220,37 @@ const updateUserDetails = asyncHandler(async (req, res) => {
   const { username, email } = req.body || {};
 
   if (!username && !email) {
-    throw new ApiError(
-      400,
-      "At least one field is required: fullname or email",
-    );
+    throw new ApiError(400, "Username or email required");
   }
+
+  const user = await User.findById(req.user._id);
 
   const updateFields = {};
-  if (username) updateFields.username = username;
-  if (email) updateFields.email = email;
 
-  const user = await User.findByIdAndUpdate(
+  if (username && username !== user.username) {
+    const existed = await User.findOne({ username });
+
+    if (existed && existed._id.toString() !== user._id.toString()) {
+      throw new ApiError(409, "Username already taken");
+    }
+
+    updateFields.username = username.toLowerCase().trim();
+  }
+
+  if (email) {
+    updateFields.email = email;
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
     req.user._id,
     { $set: updateFields },
-    { returnDocument: "after" },
+    { new: true },
   );
-
-  if (!user) {
-    throw new ApiError(404, "User not found");
-  }
 
   return res
     .status(200)
-    .json(new ApiResponse(200, { user }, "User details updated successfully"));
+    .json(new ApiResponse(200, { user: updatedUser }, "Updated"));
 });
-
 const getCurrentUser = asyncHandler(async (req, res) => {
   return res
     .status(200)
