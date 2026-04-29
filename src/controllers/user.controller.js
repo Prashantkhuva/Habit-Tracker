@@ -225,32 +225,45 @@ const updateUserDetails = asyncHandler(async (req, res) => {
 
   const user = await User.findById(req.user._id);
 
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
   const updateFields = {};
 
-  if (username && username !== user.username) {
-    const existed = await User.findOne({ username });
+  // 🔥 USERNAME FIX
+  if (username) {
+    const cleanUsername = username.toLowerCase().trim();
 
-    if (existed && existed._id.toString() !== user._id.toString()) {
-      throw new ApiError(409, "Username already taken");
+    // same username skip
+    if (cleanUsername !== user.username) {
+      const existed = await User.findOne({ username: cleanUsername });
+
+      if (existed && existed._id.toString() !== user._id.toString()) {
+        throw new ApiError(409, "Username already taken");
+      }
+
+      updateFields.username = cleanUsername;
     }
-
-    updateFields.username = username.toLowerCase().trim();
   }
 
+  // 🔥 EMAIL
   if (email) {
-    updateFields.email = email;
+    updateFields.email = email.trim();
   }
 
+  // 🔥 UPDATE
   const updatedUser = await User.findByIdAndUpdate(
     req.user._id,
     { $set: updateFields },
-    { new: true },
+    { new: true }, // important
   );
 
   return res
     .status(200)
     .json(new ApiResponse(200, { user: updatedUser }, "Updated"));
 });
+
 const getCurrentUser = asyncHandler(async (req, res) => {
   return res
     .status(200)
