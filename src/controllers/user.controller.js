@@ -242,7 +242,7 @@ const updateUserDetails = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, user, "User details updated successfully"));
+    .json(new ApiResponse(200, { user }, "User details updated successfully"));
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
@@ -274,5 +274,5 @@ export {
   changeCurrentPassword,
   updateUserDetails,
   getCurrentUser,
-  deleteUser
+  deleteUser,
 };
