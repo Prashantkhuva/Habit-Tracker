@@ -9,6 +9,7 @@ import {
   registerUser,
   updateUserDetails,
   getCurrentUser,
+  deleteUser,
 } from "../controllers/user.controller.js";
 import {
   userLoginValidator,
