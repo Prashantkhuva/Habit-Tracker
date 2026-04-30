@@ -6,6 +6,7 @@ const habitSchema = new Schema(
       type: String,
       required: [true, "Title is required"],
       trim: true,
+      unique: false,
     },
     description: {
       type: String,
