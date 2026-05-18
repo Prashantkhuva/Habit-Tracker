@@ -45,7 +45,7 @@ app.use(
       const allowedOrigins = [
         "http://localhost:5173",
         "http://localhost:3000",
-        "https://habit-flow-ten-beta.vercel.app",
+        "https://habit-flow-fullstack.vercel.app",
         ...(process.env.CORS_ORIGIN?.split(",") || []),
       ];
 
