@@ -7,7 +7,8 @@ import { asyncHandler } from "../utils/asynchandler.js";
 import jwt from "jsonwebtoken";
 
 const createHabit = asyncHandler(async (req, res) => {
-  const { title, description, frequency, category, color, type } = req.body;
+  const { title, description, frequency, category, color, type, unit } =
+    req.body;
 
   if (!title || !description || !frequency) {
     throw new ApiError(400, "Title, Description and Frequency are required");
@@ -22,12 +23,29 @@ const createHabit = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Frequency must be 'daily' or 'weekly'");
   }
 
+  const allowedTypes = ["boolean", "streak", "quantity"];
+
+  if (type && !allowedTypes.includes(type)) {
+    throw new ApiError(400, "Invalid habit type");
+  }
+
   const habit = await Habit.create({
     title: title.trim(),
+
     description: description?.trim() || "",
+
     frequency: frequency.toLowerCase(),
-    category: category.trim(),
+
+    category: category?.trim(),
+
     color,
+
+    // ✅ NEW
+    type: type || "boolean",
+
+    // ✅ NEW
+    unit: type === "quantity" ? unit?.trim() || "" : "",
+
     user: req.user._id,
   });
 
