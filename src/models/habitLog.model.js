@@ -26,6 +26,11 @@ const habitlogSchema = new Schema(
       required: true,
       index: true,
     },
+    note: {
+      type: String,
+      default: "",
+      trim: true,
+    },
   },
   {
     timestamps: true,
