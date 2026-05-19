@@ -31,6 +31,9 @@ const habitlogSchema = new Schema(
       default: "",
       trim: true,
     },
+    completedAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
