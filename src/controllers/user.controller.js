@@ -102,6 +102,7 @@ const loginUser = asyncHandler(async (req, res) => {
     secure: true,
     sameSite: "none",
     path: "/",
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   };
 
   return res
@@ -123,6 +124,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     secure: true,
     sameSite: "none",
     path: "/",
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   };
 
   await User.findByIdAndUpdate(
@@ -176,6 +178,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       secure: true,
       sameSite: "none",
       path: "/",
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     };
 
     return res
