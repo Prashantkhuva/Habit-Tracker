@@ -1,4 +1,6 @@
 import { User } from "../models/user.model.js";
+import { Habit } from "../models/habit.model.js";
+import { HabitLog } from "../models/habitLog.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
@@ -276,11 +278,21 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 const deleteUser = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
-  const user = await User.findByIdAndDelete(userId);
+  const user = await User.findById(userId);
 
   if (!user) {
     throw new ApiError(404, "User not found");
   }
+
+  const userHabits = await Habit.find({ user: userId });
+  const habitIds = userHabits.map((h) => h._id);
+
+  if (habitIds.length > 0) {
+    await HabitLog.deleteMany({ habit: { $in: habitIds } });
+    await Habit.deleteMany({ user: userId });
+  }
+
+  await User.findByIdAndDelete(userId);
 
   return res
     .status(200)
