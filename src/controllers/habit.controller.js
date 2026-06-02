@@ -91,23 +91,24 @@ const deleteHabit = asyncHandler(async (req, res) => {
 
 const updateHabitDetails = asyncHandler(async (req, res) => {
   const { habitId } = req.params;
-  const { title, description, frequency } = req.body;
-
-  const allowedFrequency = ["daily", "weekly"];
-
-  if (
-    frequency &&
-    (typeof frequency !== "string" ||
-      !allowedFrequency.includes(frequency.toLowerCase()))
-  ) {
-    throw new ApiError(400, "Frequency must be 'daily' or 'weekly'");
-  }
+  const { title, description, frequency, category, color, type, unit } =
+    req.body;
 
   const updateFields = {};
 
-  if (title) updateFields.title = title.trim();
-  if (description) updateFields.description = description.trim();
-  if (frequency) updateFields.frequency = frequency.toLowerCase();
+  if (title !== undefined) updateFields.title = title.trim();
+  if (description !== undefined)
+    updateFields.description = description.trim();
+  if (frequency !== undefined) updateFields.frequency = frequency.toLowerCase();
+  if (category !== undefined) updateFields.category = category;
+  if (color !== undefined) updateFields.color = color;
+  if (type !== undefined) {
+    updateFields.type = type;
+    if (type !== "quantity") updateFields.unit = "";
+  }
+  if (unit !== undefined && updateFields.type === "quantity") {
+    updateFields.unit = unit.trim();
+  }
 
   const habit = await Habit.findByIdAndUpdate(
     {

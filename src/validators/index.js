@@ -134,6 +134,65 @@ const updateHabitValidator = () => {
       .trim()
       .isIn(["daily", "weekly"])
       .withMessage("Frequency must be 'daily' or 'weekly'"),
+
+    body("color")
+      .optional()
+      .trim()
+      .isLength({ min: 4, max: 7 })
+      .withMessage("Color must be a valid hex color"),
+
+    body("type")
+      .optional()
+      .isIn(["boolean", "streak", "quantity"])
+      .withMessage("Invalid habit type"),
+  ];
+};
+
+/* ---------------- BLOG VALIDATORS ---------------- */
+
+const createBlogValidator = () => {
+  return [
+    body("title")
+      .trim()
+      .notEmpty()
+      .withMessage("Title is required")
+      .isLength({ min: 3 })
+      .withMessage("Title must be at least 3 characters"),
+
+    body("content")
+      .trim()
+      .notEmpty()
+      .withMessage("Content is required")
+      .isLength({ min: 10 })
+      .withMessage("Content must be at least 10 characters"),
+
+    body("slug")
+      .optional()
+      .trim()
+      .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+      .withMessage("Slug must be lowercase with hyphens only"),
+  ];
+};
+
+const updateBlogValidator = () => {
+  return [
+    body("title")
+      .optional()
+      .trim()
+      .isLength({ min: 3 })
+      .withMessage("Title must be at least 3 characters"),
+
+    body("content")
+      .optional()
+      .trim()
+      .isLength({ min: 10 })
+      .withMessage("Content must be at least 10 characters"),
+
+    body("slug")
+      .optional()
+      .trim()
+      .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+      .withMessage("Slug must be lowercase with hyphens only"),
   ];
 };
 
@@ -144,4 +203,6 @@ export {
   updateUserDetailsValidator,
   createHabitValidator,
   updateHabitValidator,
+  createBlogValidator,
+  updateBlogValidator,
 };
