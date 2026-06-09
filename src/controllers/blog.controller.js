@@ -43,13 +43,35 @@ const createBlogPost = asyncHandler(async (req, res) => {
 });
 
 const getAllBlogPosts = asyncHandler(async (req, res) => {
-  const posts = await Blog.find()
-    .sort({ published: -1, createdAt: -1 })
-    .select("-content");
+  const page = parseInt(req.query.page) || 1;
+  const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+  const skip = (page - 1) * limit;
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, posts, "Blog posts fetched successfully"));
+  const [posts, totalPosts] = await Promise.all([
+    Blog.find()
+      .sort({ published: -1, createdAt: -1 })
+      .select("-content")
+      .skip(skip)
+      .limit(limit),
+
+    Blog.countDocuments(),
+  ]);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        posts,
+        pagination: {
+          totalPosts,
+          totalPages: Math.ceil(totalPosts / limit),
+          currentPage: page,
+          limit,
+        },
+      },
+      "Blog posts fetched successfully",
+    ),
+  );
 });
 
 const getBlogPostBySlug = asyncHandler(async (req, res) => {

@@ -17,7 +17,7 @@ export const startReminderJob = () => {
 
       for (const user of users) {
         const habits = await Habit.find({
-          userId: user._id,
+          user: user._id,
           status: "active",
         });
 
@@ -25,8 +25,8 @@ export const startReminderJob = () => {
 
         for (const habit of habits) {
           const log = await HabitLog.findOne({
-            userId: user._id,
-            habitId: habit._id,
+            user: user._id,
+            habit: habit._id,
             date: {
               $gte: today,
               $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),

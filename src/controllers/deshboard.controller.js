@@ -7,41 +7,35 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 
 const getDashboardStats = asyncHandler(async (req, res) => {
-  const userId = req.user._id;
+  const userId = new mongoose.Types.ObjectId(req.user._id);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const todayTs = today.getTime();
 
-  // 1️⃣ total habits
-  // const totalHabits = await Habit.countDocuments({
-  //   user: userId,
-  // });
-
-  // // 2️⃣ completed today
-  // const completedToday = await HabitLog.countDocuments({
-  //   user: userId,
-  //   date: today,
-  // });
-
-  // // 3️⃣ total completions
-  // const totalCompletions = await HabitLog.countDocuments({
-  //   user: userId,
-  // });
-
-  const [totalHabits, completedToday, totalCompletions] = await Promise.all([
-    Habit.countDocuments({
-      user: userId,
-    }),
-
-    HabitLog.countDocuments({
-      user: userId,
-      date: today,
-    }),
-
-    HabitLog.countDocuments({
-      user: userId,
-    }),
+  const [dashboardStats] = await HabitLog.aggregate([
+    {
+      $facet: {
+        totalCompletions: [
+          { $match: { user: userId } },
+          { $count: "count" },
+        ],
+        completedToday: [
+          { $match: { user: userId, date: todayTs } },
+          { $count: "count" },
+        ],
+      },
+    },
   ]);
+
+  const [habitCount] = await Habit.aggregate([
+    { $match: { user: userId } },
+    { $count: "count" },
+  ]);
+
+  const totalHabits = habitCount?.count || 0;
+  const completedToday = dashboardStats?.completedToday?.[0]?.count || 0;
+  const totalCompletions = dashboardStats?.totalCompletions?.[0]?.count || 0;
 
   const completionRate =
     totalHabits === 0 ? 0 : Math.floor((completedToday / totalHabits) * 100);
@@ -49,12 +43,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(
       200,
-      {
-        totalHabits,
-        completedToday,
-        totalCompletions,
-        completionRate,
-      },
+      { totalHabits, completedToday, totalCompletions, completionRate },
       "Dashboard stats fetched successfully",
     ),
   );
@@ -62,60 +51,42 @@ const getDashboardStats = asyncHandler(async (req, res) => {
 
 const weeklyChart = asyncHandler(async (req, res) => {
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const firstDay = new Date(today);
-  firstDay.setDate(today.getDate() - today.getDay() + 1);
-  firstDay.setHours(0, 0, 0, 0);
+  const dayOfWeek = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  monday.setHours(0, 0, 0, 0);
 
-  const lastDay = new Date(firstDay);
-  lastDay.setDate(firstDay.getDate() + 6);
-  lastDay.setHours(23, 59, 59, 999);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
 
   const weeklyData = await HabitLog.aggregate([
     {
       $match: {
         user: new mongoose.Types.ObjectId(req.user._id),
         completed: true,
-      },
-    },
-    {
-      $addFields: {
-        dateValue: { $toDate: "$date" },
-      },
-    },
-    {
-      $match: {
-        dateValue: {
-          $gte: firstDay,
-          $lte: lastDay,
+        date: {
+          $gte: monday.getTime(),
+          $lte: sunday.getTime(),
         },
       },
     },
     {
-      $addFields: {
-        dayOfWeek: { $dayOfWeek: "$dateValue" },
-      },
-    },
-    {
       $group: {
-        _id: "$dayOfWeek",
+        _id: { $dayOfWeek: { $toDate: "$date" } },
         count: { $sum: 1 },
       },
     },
-    {
-      $sort: { _id: 1 },
-    },
+    { $sort: { _id: 1 } },
   ]);
 
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const result = days.map((day, index) => {
     const found = weeklyData.find((d) => d._id === index + 1);
-
-    return {
-      day,
-      count: found ? found.count : 0,
-    };
+    return { day, count: found ? found.count : 0 };
   });
 
   return res
@@ -132,86 +103,76 @@ const longestStreak = asyncHandler(async (req, res) => {
   };
 
   if (habitId) {
-    matchFilter.habit = habitId;
+    matchFilter.habit = new mongoose.Types.ObjectId(habitId);
   }
 
-  const logs = await HabitLog.find({
-    ...matchFilter,
-  }).sort({ date: 1 });
-
-  if (!logs.length) {
-    return res.status(200).json(
-      new ApiResponse(
-        200,
-        {
-          currentStreak: 0,
-          longestStreak: 0,
+  const uniqueDays = await HabitLog.aggregate([
+    { $match: matchFilter },
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: "%Y-%m-%d", date: { $toDate: "$date" } },
         },
-        "Streak calculated successfully",
-      ),
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+
+  if (!uniqueDays.length) {
+    return res.status(200).json(
+      new ApiResponse(200, { currentStreak: 0, longestStreak: 0 }, "Streak calculated successfully"),
     );
   }
 
-  const uniqueDates = [
-    ...new Set(logs.map((log) => new Date(log.date).toDateString())),
-  ].map((value) => new Date(value));
+  const dates = uniqueDays.map((d) => new Date(d._id));
 
-  let currentStreak = 0;
-  let maxStreak = 0;
-  let previousDate = null;
+  let currentStreak = 1;
+  let maxStreak = 1;
 
-  for (const currentDate of uniqueDates) {
-    let diff = 0;
-
-    if (!previousDate) {
-      currentStreak = 1;
+  for (let i = 1; i < dates.length; i++) {
+    const diff = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
+    if (diff === 1) {
+      currentStreak++;
     } else {
-      diff = (currentDate - previousDate) / (1000 * 60 * 60 * 24);
-      if (diff === 1) {
-        currentStreak++;
-      } else {
-        currentStreak = 1;
-      }
+      currentStreak = 1;
     }
-
     maxStreak = Math.max(maxStreak, currentStreak);
-
-    previousDate = currentDate;
   }
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   let liveStreak = 0;
-  let cursor = new Date(today);
+  const dateSet = new Set(uniqueDays.map((d) => d._id));
 
-  const dateSet = new Set(uniqueDates.map((d) => d.toDateString()));
+  const formatDate = (d) => d.toISOString().slice(0, 10);
+  let cursor = formatDate(today);
 
-  while (dateSet.has(cursor.toDateString())) {
+  while (dateSet.has(cursor)) {
     liveStreak++;
-    cursor.setDate(cursor.getDate() - 1);
+    const prev = new Date(cursor);
+    prev.setDate(prev.getDate() - 1);
+    cursor = formatDate(prev);
   }
 
   return res.status(200).json(
-    new ApiResponse(
-      200,
-      {
-        currentStreak: liveStreak,
-        longestStreak: maxStreak,
-      },
-      "Streak calculated successfully",
-    ),
+    new ApiResponse(200, { currentStreak: liveStreak, longestStreak: maxStreak }, "Streak calculated successfully"),
   );
 });
 
 const heatmapData = asyncHandler(async (req, res) => {
-  const userId = new mongoose.Types.ObjectId(req.user._id); // ← req.user se lo
+  const userId = new mongoose.Types.ObjectId(req.user._id);
+
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  oneYearAgo.setHours(0, 0, 0, 0);
 
   const data = await HabitLog.aggregate([
     {
       $match: {
         user: userId,
         completed: true,
+        date: { $gte: oneYearAgo.getTime() },
       },
     },
     {
@@ -219,15 +180,13 @@ const heatmapData = asyncHandler(async (req, res) => {
         _id: {
           $dateToString: {
             format: "%Y-%m-%d",
-            date: { $toDate: "$date" }, // ← $toDate add karo
+            date: { $toDate: "$date" },
           },
         },
         count: { $sum: 1 },
       },
     },
-    {
-      $sort: { _id: 1 },
-    },
+    { $sort: { _id: 1 } },
   ]);
 
   return res

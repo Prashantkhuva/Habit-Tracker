@@ -128,47 +128,39 @@ const getHabitStreak = asyncHandler(async (req, res) => {
   const habit = await Habit.findOne({
     _id: habitId,
     user: req.user._id,
-  });
+  }).select("_id");
 
   if (!habit) {
     throw new ApiError(404, "Habit not found or unauthorized");
   }
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayTs = today.getTime();
+  const thirtyDaysAgo = todayTs - 30 * 24 * 60 * 60 * 1000;
+
   const logs = await HabitLog.find({
     habit: habitId,
     user: req.user._id,
     completed: true,
-  }).sort({ date: -1 });
+    date: { $gte: thirtyDaysAgo },
+  }).sort({ date: -1 }).limit(31).select("date -_id");
 
-  /* NO LOGS */
   if (logs.length === 0) {
     return res.status(200).json(
-      new ApiResponse(
-        200,
-        {
-          currentStreak: 0,
-        },
-        "No streak yet",
-      ),
+      new ApiResponse(200, { currentStreak: 0 }, "No streak yet"),
     );
   }
 
   let streak = 0;
-
-  const today = new Date();
-
-  today.setHours(0, 0, 0, 0);
-
   let currentDate = new Date(today);
 
   for (const log of logs) {
     const logDate = new Date(log.date);
-
     logDate.setHours(0, 0, 0, 0);
 
     if (logDate.getTime() === currentDate.getTime()) {
       streak++;
-
       currentDate.setDate(currentDate.getDate() - 1);
     } else {
       break;
@@ -176,13 +168,7 @@ const getHabitStreak = asyncHandler(async (req, res) => {
   }
 
   return res.status(200).json(
-    new ApiResponse(
-      200,
-      {
-        currentStreak: streak,
-      },
-      "Habit streak fetched successfully",
-    ),
+    new ApiResponse(200, { currentStreak: streak }, "Habit streak fetched successfully"),
   );
 });
 
@@ -191,15 +177,31 @@ const getHabitStreak = asyncHandler(async (req, res) => {
 /* ------------------------------------------------ */
 
 const getAllHabitLogs = asyncHandler(async (req, res) => {
-  const logs = await HabitLog.find({
-    user: req.user._id,
-  }).sort({ date: -1 });
+  const page = parseInt(req.query.page) || 1;
+  const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+  const skip = (page - 1) * limit;
+
+  const [logs, totalLogs] = await Promise.all([
+    HabitLog.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("habit", "title color type unit"),
+
+    HabitLog.countDocuments({ user: req.user._id }),
+  ]);
 
   return res.status(200).json(
     new ApiResponse(
       200,
       {
         logs,
+        pagination: {
+          totalLogs,
+          totalPages: Math.ceil(totalLogs / limit),
+          currentPage: page,
+          limit,
+        },
       },
       "All logs fetched",
     ),

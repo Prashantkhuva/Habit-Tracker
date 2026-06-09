@@ -55,13 +55,34 @@ const createHabit = asyncHandler(async (req, res) => {
 });
 
 const getUserHabit = asyncHandler(async (req, res) => {
-  const habits = await Habit.find({ user: req.user._id }).sort({
-    createdAt: -1,
-  });
+  const page = parseInt(req.query.page) || 1;
+  const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+  const skip = (page - 1) * limit;
+  const status = req.query.status;
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, habits, "Habits fetched successfully"));
+  const filter = { user: req.user._id };
+  if (status) filter.status = status;
+
+  const [habits, totalHabits] = await Promise.all([
+    Habit.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    Habit.countDocuments(filter),
+  ]);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        habits,
+        pagination: {
+          totalHabits,
+          totalPages: Math.ceil(totalHabits / limit),
+          currentPage: page,
+          limit,
+        },
+      },
+      "Habits fetched successfully",
+    ),
+  );
 });
 
 const deleteHabit = asyncHandler(async (req, res) => {

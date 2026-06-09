@@ -61,4 +61,7 @@ const habitSchema = new Schema(
   },
 );
 
+habitSchema.index({ user: 1, status: 1 });
+habitSchema.index({ user: 1, createdAt: -1 });
+
 export const Habit = mongoose.model("Habit", habitSchema);
