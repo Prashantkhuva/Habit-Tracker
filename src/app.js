@@ -46,6 +46,7 @@ app.use(
         "http://localhost:5173",
         "http://localhost:3000",
         "https://habit-flow-fullstack.vercel.app",
+        "https://habitflow.indevs.in",
         ...(process.env.CORS_ORIGIN?.split(",") || []),
       ];
 
