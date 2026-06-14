@@ -318,7 +318,8 @@ const forgotPassword = asyncHandler(async (req, res) => {
   user.resetPasswordToken = resetToken;
   user.resetPasswordExpiry = new Date(Date.now() + 15 * 60 * 1000);
   await user.save({ validateBeforeSave: false });
-  const resetUrl = `${process.env.CORS_ORIGIN?.split(",")[0] || "http://localhost:3000"}/reset-password?token=${resetToken}`;
+  const frontendUrl = req.headers.origin || process.env.FRONTEND_URL || process.env.CORS_ORIGIN?.split(",")[0] || "http://localhost:5173";
+  const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
   return res
     .status(200)
     .json(
