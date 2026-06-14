@@ -196,6 +196,28 @@ const updateBlogValidator = () => {
   ];
 };
 
+const forgotPasswordValidator = () => {
+  return [
+    body("email")
+      .trim()
+      .notEmpty()
+      .withMessage("Email is required")
+      .isEmail()
+      .withMessage("Email is invalid"),
+  ];
+};
+
+const resetPasswordValidator = () => {
+  return [
+    body("token").notEmpty().withMessage("Reset token is required"),
+    body("password")
+      .notEmpty()
+      .withMessage("Password is required")
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters long"),
+  ];
+};
+
 export {
   userRegisterValidator,
   userLoginValidator,
@@ -205,4 +227,6 @@ export {
   updateHabitValidator,
   createBlogValidator,
   updateBlogValidator,
+  forgotPasswordValidator,
+  resetPasswordValidator,
 };

@@ -299,6 +299,68 @@ const deleteUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Account deleted successfully"));
 });
 
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    throw new ApiError(400, "Email is required");
+  }
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "If the email exists, a reset link will be sent."));
+  }
+  const resetToken = jwt.sign(
+    { _id: user._id },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "15m" },
+  );
+  user.resetPasswordToken = resetToken;
+  user.resetPasswordExpiry = new Date(Date.now() + 15 * 60 * 1000);
+  await user.save({ validateBeforeSave: false });
+  const resetUrl = `${process.env.CORS_ORIGIN?.split(",")[0] || "http://localhost:3000"}/reset-password?token=${resetToken}`;
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { resetUrl, message: "Use this link to reset your password (dev mode)" },
+        "Reset link generated",
+      ),
+    );
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password) {
+    throw new ApiError(400, "Token and new password are required");
+  }
+  if (password.length < 6) {
+    throw new ApiError(400, "Password must be at least 6 characters");
+  }
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  } catch {
+    throw new ApiError(400, "Invalid or expired reset token");
+  }
+  const user = await User.findById(decoded._id);
+  if (
+    !user ||
+    user.resetPasswordToken !== token ||
+    user.resetPasswordExpiry < new Date()
+  ) {
+    throw new ApiError(400, "Invalid or expired reset token");
+  }
+  user.password = password;
+  user.resetPasswordToken = null;
+  user.resetPasswordExpiry = null;
+  await user.save({ validateBeforeSave: false });
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password reset successfully"));
+});
+
 export {
   generateAccessAndRefreshToken,
   registerUser,
@@ -309,4 +371,6 @@ export {
   updateUserDetails,
   getCurrentUser,
   deleteUser,
+  forgotPassword,
+  resetPassword,
 };

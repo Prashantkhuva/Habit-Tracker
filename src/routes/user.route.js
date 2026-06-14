@@ -3,10 +3,12 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import {
   changeCurrentPassword,
+  forgotPassword,
   loginUser,
   logoutUser,
   refreshAccessToken,
   registerUser,
+  resetPassword,
   updateUserDetails,
   getCurrentUser,
   deleteUser,
@@ -16,6 +18,8 @@ import {
   userRegisterValidator,
   changePasswordValidator,
   updateUserDetailsValidator,
+  forgotPasswordValidator,
+  resetPasswordValidator,
 } from "../validators/index.js";
 
 const router = Router();
@@ -23,6 +27,14 @@ const router = Router();
 router.route("/register").post(userRegisterValidator(), validate, registerUser);
 
 router.route("/login").post(userLoginValidator(), validate, loginUser);
+
+router
+  .route("/forgot-password")
+  .post(forgotPasswordValidator(), validate, forgotPassword);
+
+router
+  .route("/reset-password")
+  .post(resetPasswordValidator(), validate, resetPassword);
 
 router.route("/refresh-token").post(refreshAccessToken);
 
