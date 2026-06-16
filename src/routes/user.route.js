@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { validate } from "../middlewares/validator.middleware.js";
+import { validate } from "../middlewares/validator.middleware.js"; 
 import {
   changeCurrentPassword,
   forgotPassword,
